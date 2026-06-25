@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="he">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -32,25 +32,18 @@
     text-align: center;
   }
   .icon { font-size: 3rem; line-height: 1; margin-bottom: 0.5rem; }
-  h1 { font-size: 1.4rem; margin: 0.25rem 0; }
-  h1.en { font-size: 1.15rem; font-weight: 600; opacity: 0.85; }
+  h1 { font-size: 1.35rem; margin: 0.25rem 0; }
   p { font-size: 1rem; margin: 0.5rem 0; }
   .muted { color: #8a8a8e; font-size: 0.85rem; margin-top: 1rem; word-break: break-word; }
-  hr { border: none; border-top: 1px solid rgba(128,128,128,0.25); margin: 1.5rem 0; }
 </style>
 </head>
 <body>
 <main>
   <div class="card">
     <div class="icon" id="icon">⏳</div>
-    <!-- Hebrew (primary audience) -->
-    <h1 dir="rtl" id="title-he"></h1>
-    <p dir="rtl" id="body-he"></p>
-    <hr>
-    <!-- English -->
-    <h1 class="en" dir="ltr" id="title-en"></h1>
-    <p dir="ltr" id="body-en"></p>
-    <p class="muted" id="detail" dir="ltr"></p>
+    <h1 id="title"></h1>
+    <p id="body"></p>
+    <p class="muted" id="detail"></p>
   </div>
 </main>
 
@@ -71,28 +64,25 @@
   var states = {
     success: {
       icon: "✅",
-      he: ["האימייל אומת!", "החשבון שלך מוכן. חזרו לאפליקציית קשר והתחברו עם האימייל והסיסמה שלכם."],
-      en: ["Email confirmed!", "Your account is ready. Return to the Keshr app and sign in with your email and password."]
+      title: "Email confirmed!",
+      body: "Your account is ready. Return to the Keshr app and sign in with your email and password."
     },
     error: {
       icon: "⚠️",
-      he: ["הקישור אינו תקף", "ייתכן שהקישור פג תוקף או כבר נוצל. פתחו את האפליקציה ונסו להירשם שוב כדי לקבל אימייל חדש."],
-      en: ["This link is no longer valid", "It may have expired or already been used. Open the app and sign up again to get a new confirmation email."]
+      title: "This link is no longer valid",
+      body: "It may have expired or already been used. Open the app and sign up again to get a new confirmation email."
     },
     neutral: {
       icon: "👋",
-      he: ["ברוכים הבאים לקשר", "פתחו את אפליקציית קשר במכשיר שלכם כדי להמשיך."],
-      en: ["Welcome to Keshr", "Open the Keshr app on your device to continue."]
+      title: "Welcome to Keshr",
+      body: "Open the Keshr app on your device to continue."
     }
   };
 
   var state = hasToken ? states.success : (errorDesc ? states.error : states.neutral);
   document.getElementById("icon").textContent = state.icon;
-  document.getElementById("title-he").textContent = state.he[0];
-  document.getElementById("body-he").textContent = state.he[1];
-  document.getElementById("title-en").textContent = state.en[0];
-  document.getElementById("body-en").textContent = state.en[1];
-  document.documentElement.lang = "he";
+  document.getElementById("title").textContent = state.title;
+  document.getElementById("body").textContent = state.body;
   if (errorDesc && !hasToken) {
     document.getElementById("detail").textContent = errorDesc;
   }
