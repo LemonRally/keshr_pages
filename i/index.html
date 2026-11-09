@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Keshr — Invite</title>
+<!--
+  Invite fallback page for https://lemonrally.github.io/keshr_pages/i/<CODE>.
+  GitHub Pages has no rewrites, so /i/<CODE> is served by this 404.html (and
+  /i/ by i/index.html, an identical copy). The code is read from
+  location.pathname, canonicalized with the app's rules (src/utils/inviteCode.ts)
+  and rendered with textContent only, never innerHTML. Self-contained: no
+  external resources, fonts or analytics (privacy-policy commitment).
+  When the app is installed and the domain is verified, the OS opens the app
+  directly and this page is never shown.
+-->
+<style>
+  :root { color-scheme: light dark; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    line-height: 1.6;
+    margin: 0;
+    padding: 2rem 1rem 4rem;
+    background: #f5f5f7;
+    color: #1c1c1e;
+    display: flex;
+    min-height: 100vh;
+    align-items: center;
+    justify-content: center;
+  }
+  @media (prefers-color-scheme: dark) {
+    body { background: #000; color: #f2f2f7; }
+    .card { background: #1c1c1e !important; }
+    .code { background: #2c2c2e !important; }
+    .btn.secondary { background: #2c2c2e !important; color: #f2f2f7 !important; }
+  }
+  main { max-width: 480px; width: 100%; }
+  .card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 2rem 1.75rem;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    text-align: center;
+  }
+  .icon { font-size: 3rem; line-height: 1; margin-bottom: 0.5rem; }
+  h1 { font-size: 1.35rem; margin: 0.25rem 0; }
+  p { font-size: 1rem; margin: 0.5rem 0; }
+  .code {
+    direction: ltr;
+    unicode-bidi: isolate;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    background: #f2f2f7;
+    border-radius: 12px;
+    padding: 0.75rem 1rem;
+    margin: 1rem 0;
+    user-select: all;
+    word-break: break-all;
+  }
+  .buttons { display: flex; flex-direction: column; gap: 0.6rem; margin-top: 1.25rem; }
+  .btn {
+    display: block;
+    padding: 0.8rem 1rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+  }
+  .btn.primary { background: #0a7ea4; color: #fff; }
+  .btn.secondary { background: #e5e5ea; color: #1c1c1e; }
+  .muted { color: #8a8a8e; font-size: 0.85rem; margin-top: 1rem; }
+  .lang { margin-top: 1.25rem; font-size: 0.85rem; }
+  .lang button {
+    background: none; border: none; color: #0a7ea4; cursor: pointer;
+    font: inherit; padding: 0.25rem 0.5rem;
+  }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <div class="card">
+    <div class="icon" id="icon">🔗</div>
+    <h1 id="title"></h1>
+    <p id="body"></p>
+    <div class="code" id="code" hidden></div>
+    <div class="buttons">
+      <a class="btn primary" id="open" href="#" hidden></a>
+      <a class="btn secondary" id="play" href="https://play.google.com/store/apps/details?id=com.lemonrally.keshr"></a>
+      <a class="btn secondary" id="appstore" href="https://apps.apple.com/app/id6785405136"></a>
+      <a class="btn secondary" id="home" href="/keshr_pages/" hidden></a>
+    </div>
+    <div class="lang"><button type="button" id="toggle"></button></div>
+  </div>
+</main>
+
+<script>
+  // Mirrors src/utils/inviteCode.ts: Crockford base32 short codes only
+  // (no I/L/O/U; O→0, I/L→1 look-alikes, case-insensitive, dash/space
+  // ignored).
+  var SHORT_RE = /^[0-9A-HJKMNP-TV-Z]{8}$/;
+
+  function canonical(token) {
+    var c = token.toUpperCase().replace(/[\s\-–]/g, "")
+      .replace(/O/g, "0").replace(/[IL]/g, "1");
+    return SHORT_RE.test(c) ? c : null;
+  }
+
+  var match = /\/keshr_pages\/i\/([^\/?#]*)/.exec(location.pathname);
+  var onInvitePath = /\/keshr_pages\/i(\/(index\.html)?)?$/.test(location.pathname) || !!match;
+  var token = match ? match[1] : "";
+  if (token === "index.html") token = "";
+  try { token = decodeURIComponent(token); } catch (e) { /* keep raw */ }
+  var code = token ? canonical(token) : null;
+
+  // invite: valid code; nocode: /i/ itself; invalid: bad code or unrelated 404.
+  var state = code ? "invite" : (onInvitePath && !token ? "nocode" : "invalid");
+
+  var text = {
+    en: {
+      invite: {
+        title: "You're invited to connect on Keshr",
+        body: "If the app is installed, the link should open it. You can also enter this code in the app under Settings → Friends & sharing."
+      },
+      nocode: {
+        title: "Connect on Keshr",
+        body: "Ask your friend for their invite code, then enter it in the app under Settings → Friends & sharing."
+      },
+      invalid: {
+        title: "Page not found",
+        body: "This page doesn't exist, or the invite link isn't valid. Ask your friend to send it again."
+      },
+      open: "Open in the app",
+      play: "Get it on Google Play",
+      appstore: "Download on the App Store",
+      home: "Keshr home",
+      toggle: "עברית"
+    },
+    he: {
+      invite: {
+        title: "הוזמנתם להתחבר ב-Keshr",
+        body: "אם האפליקציה מותקנת, הקישור אמור לפתוח אותה. אפשר גם להזין את הקוד באפליקציה תחת הגדרות ← חברים ושיתוף."
+      },
+      nocode: {
+        title: "התחברו ב-Keshr",
+        body: "בקשו מהחבר את קוד ההזמנה שלו, והזינו אותו באפליקציה תחת הגדרות ← חברים ושיתוף."
+      },
+      invalid: {
+        title: "הדף לא נמצא",
+        body: "הדף לא קיים, או שקישור ההזמנה לא תקין. בקשו מהחבר לשלוח אותו שוב."
+      },
+      open: "פתיחה באפליקציה",
+      play: "הורדה מ-Google Play",
+      appstore: "הורדה מ-App Store",
+      home: "לדף הבית של Keshr",
+      toggle: "English"
+    }
+  };
+
+  function el(id) { return document.getElementById(id); }
+
+  function render(lang) {
+    var t = text[lang];
+    document.documentElement.lang = lang;
+    document.documentElement.dir = lang === "he" ? "rtl" : "ltr";
+    el("icon").textContent = state === "invalid" ? "⚠️" : "🔗";
+    el("title").textContent = t[state].title;
+    el("body").textContent = t[state].body;
+    document.title = "Keshr — " + t[state].title;
+    el("play").textContent = t.play;
+    el("appstore").textContent = t.appstore;
+    el("home").textContent = t.home;
+    el("toggle").textContent = t.toggle;
+    if (code) {
+      el("code").textContent = code.slice(0, 4) + "-" + code.slice(4);
+      el("code").hidden = false;
+      el("open").textContent = t.open;
+      el("open").href = "keshr://link/" + encodeURIComponent(code);
+      el("open").hidden = false;
+    }
+    el("home").hidden = state !== "invalid";
+  }
+
+  var lang = /^(he|iw)\b/i.test(navigator.language || "") ? "he" : "en";
+  el("toggle").addEventListener("click", function () {
+    lang = lang === "he" ? "en" : "he";
+    render(lang);
+  });
+  render(lang);
+</script>
+</body>
+</html>
